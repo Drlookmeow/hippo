@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>歷史抉擇：戰火中的黎明</title>
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", sans-serif;
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #game-container {
+            background-color: #2a2a2a;
+            border: 2px solid #555;
+            border-radius: 10px;
+            padding: 30px;
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            position: relative;
+            overflow: hidden;
+        }
+        /* 簡單的 CSS 動畫替代圖片 */
+        #visual-box {
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(45deg, #8B0000, #4A0000);
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.5);
+            transition: all 0.5s ease;
+        }
+        #story-title {
+            color: #ffcc00;
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+        #story-text {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            min-height: 80px;
+        }
+        .btn {
+            background-color: #444;
+            color: white;
+            border: 1px solid #777;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 90%;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background-color: #666;
+        }
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        #score-display {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #ffaa00;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="visual-box">點擊開始以載入音效</div>
+    <h2 id="story-title">歡迎來到遊戲</h2>
+    <div id="story-text">準備好改變歷史了嗎？</div>
+    <div id="options-container">
+        <button class="btn" onclick="initGame()">開始遊戲</button>
+    </div>
+    <div id="score-display"></div>
+</div>
+
+<script>
+// 音效系統 (使用 Web Audio API)
+let audioCtx;
+function playSound(type) {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    if (type === 'click') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.1);
+        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+    } else if (type === 'win') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(600, audioCtx.currentTime + 0.2);
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime + 0.4);
+        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.8);
+    } else if (type === 'lose') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.5);
+        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.5);
+    }
+}
+
+// 遊戲劇本資料
+const storyData = {
+    start: {
+        title: "事件1: 未來",
+        text: "我們成立了！但是，我們該如何？",
+        color: "#2C3E50",
+        options: [
+            { text: "選項1：與國民黨合作", next: "event2" },
+            { text: "選項2：漢賊不兩立", next: "end1" }
+        ]
+    },
+    event2: {
+        title: "事件2: 北伐前夕",
+        text: "孫中山快支持不下去了！要是他死了，我們可能就會被國民黨右派驅逐。我們應否以孫中山為工具，清洗國民黨右派？",
+        color: "#8E44AD",
+        options: [
+            { text: "選項1：繼續合作", next: "event3" },
+            { text: "選項2：清洗國民黨右派", next: "event4" }
+        ]
+    },
+    event3: {
+        title: "事件3: 南昌起義/暴動",
+        text: "我們成功起義了！可是，潮汕很難打進去，我們該如何辦？",
+        color: "#C0392B",
+        options: [
+            { text: "選項1：不計傷亡進攻！", next: "end2" },
+            { text: "選項2：分散轉移撤退", next: "event5" }
+        ]
+    },
+    event4: {
+        title: "事件4: 北伐後",
+        text: "終於，北伐成功了，現在國民黨左派已經成為我們的傀儡了。我們應該留下他們，穩定局勢，還是直接不演？",
+        color: "#D35400",
+        options: [
+            { text: "選項1：先平軍閥，後吞滅國民黨左派", next: "event6" },
+            { text: "選項2：先吞滅國民黨左派", next: "end3" }
+        ]
+    },
+    event5: {
+        title: "事件5: 第五次反圍剿戰爭",
+        text: "我們被國軍團團圍住了！我們該如何辦？",
+        color: "#27AE60",
+        options: [
+            { text: "選項1：死守！不能放棄人民！", next: "end4" },
+            { text: "選項2：戰略轉移，求生存", next: "event7" }
+        ]
+    },
+    event6: {
+        title: "事件6: 九一八事變",
+        text: "日寇進攻東北了！我們該扺抗還是好漢不吃眼前虧，先穩定國內局勢？",
+        color: "#16A085",
+        options: [
+            { text: "選項1：先安內", next: "end9" },
+            { text: "選項2：先攘外", next: "end5" }
+        ]
+    },
+    event7: {
+        title: "事件7: 西安事變",
+        text: "蔣介石中計了！我們應否殺死他？",
+        color: "#2980B9",
+        options: [
+            { text: "選項1：別殺他！", next: "event8" },
+            { text: "選項2：殺了這個漢奸！", next: "end6" }
+        ]
+    },
+    event8: {
+        title: "事件8: 國共內戰危機",
+        text: "現在我們又沒有糧食，又沒錢，百姓可能起義，我們該如何辦？",
+        color: "#F39C12",
+        options: [
+            { text: "選項1：徹底土改！", next: "end8" },
+            { text: "選項2：反動派都該死！", next: "end7" }
+        ]
+    },
+    // 結局設定 (包含分數計算邏輯所需資訊)
+    end1: { title: "結局1 (C級)", text: "雖然成立了，但由於沒有跟國民黨合作，未能成功獲得任何影響力，最後被國民黨以非法學運組織被消滅。", score: -100, isWin: false },
+    end2: { title: "結局2 (C級)", text: "雖然成功獲得兵力，但由於不計死傷進功，最後被國軍在潮汕門前全滅。", score: -100, isWin: false },
+    end3: { title: "結局3 (C級)", text: "吞併國民黨左派後，大量資本家害怕被消滅發動反抗，最終被推翻。", score: -100, isWin: false },
+    end4: { title: "結局4 (C級)", text: "在宣佈死守後，大量農民加入軍隊誓要共生死，但最後被國民黨團滅。", score: -100, isWin: false },
+    end5: { title: "结局5 (C級)", text: "雖然統一中國，但土地改革未完成。在宣佈進攻日本後，地主發動反抗，被兩面夾攻推翻。", score: -100, isWin: false },
+    end6: { title: "結局6 (C級)", text: "長佂後元氣大傷。蔣介石被殺後，國民黨右派全面進攻，最終被全滅。", score: -100, isWin: false },
+    end7: { title: "結局7 (B級)", text: "幫助勝出二戰！但在國共戰爭時，徵糧方式粗暴引發「民變」，內外夾攻中被逼投降。", score: 150, isWin: false },
+    end8: { title: "結局8 (A級)", text: "統一全中國！以徹底平分土地解決危機，打敗對手成立新政權。", score: 280, isWin: true },
+    end9: { title: "結局9 (S級)", text: "統一東亞！不但統一中國、成功抗日，更把赤旗插上東京，成立東亞人民共和國。<br><br><b>🌈 彩蛋：看看美麗的山河！</b>", score: 300, isWin: true }
+};
+
+// 評級系統
+function getRank(score) {
+    if (score >= 300) return "無敵 (300分)";
+    if (score >= 270) return "很強 (" + score + "分)";
+    if (score >= 180) return "強 (" + score + "分)";
+    if (score >= 120) return "正常 (" + score + "分)";
+    if (score >= 0) return "弱 (" + score + "分)";
+    return "滅國 (-100分)";
+}
+
+// 遊戲邏輯
+function initGame() {
+    // 為了允許瀏覽器播放音效，必須由使用者點擊後初始化 AudioContext
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    document.getElementById("score-display").innerHTML = "";
+    goToNode("start");
+}
+
+function goToNode(nodeId) {
+    const node = storyData[nodeId];
+    const container = document.getElementById("game-container");
+    const visualBox = document.getElementById("visual-box");
+    const titleEl = document.getElementById("story-title");
+    const textEl = document.getElementById("story-text");
+    const optionsEl = document.getElementById("options-container");
+    const scoreEl = document.getElementById("score-display");
+
+    // 觸發動畫
+    container.classList.remove("fade-in");
+    void container.offsetWidth; // 觸發重繪
+    container.classList.add("fade-in");
+
+    // 設定文字與畫面
+    titleEl.innerHTML = node.title;
+    textEl.innerHTML = node.text;
+    optionsEl.innerHTML = "";
+    
+    // 如果是結局
+    if (node.score !== undefined) {
+        visualBox.style.background = node.isWin ? "linear-gradient(45deg, #F1C40F, #D35400)" : "linear-gradient(45deg, #2C3E50, #000000)";
+        visualBox.innerText = node.isWin ? "🏆 歷史的勝利者" : "💀 歷史的塵埃";
+        playSound(node.isWin ? 'win' : 'lose');
+        
+        let rankStr = getRank(node.score);
+        scoreEl.innerHTML = "最終評價：<span style='color:white;'>" + rankStr + "</span>";
+
+        let restartBtn = document.createElement("button");
+        restartBtn.className = "btn";
+        restartBtn.innerText = "重新開始";
+        restartBtn.onclick = function() {
+            playSound('click');
+            initGame();
+        };
+        optionsEl.appendChild(restartBtn);
+    } else {
+        // 如果是事件
+        visualBox.style.background = node.color;
+        visualBox.innerText = "抉擇時刻";
+        playSound('click');
+
+        node.options.forEach(opt => {
+            let btn = document.createElement("button");
+            btn.className = "btn";
+            btn.innerText = opt.text;
+            btn.onclick = function() {
+                playSound('click');
+                goToNode(opt.next);
+            };
+            optionsEl.appendChild(btn);
+        });
+    }
+}
+</script>
+</body>
+</html>
