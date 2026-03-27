@@ -3,142 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歷史抉擇：戰火中的黎明</title>
+    <title>歷史抉擇：戰火中的黎明 (圖文版)</title>
     <style>
         body {
-            font-family: "Microsoft JhengHei", sans-serif;
-            background-color: #1a1a1a;
-            color: #f0f0f0;
+            font-family: "Microsoft JhengHei", "Heiti TC", sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-        }
-        #game-container {
-            background-color: #2a2a2a;
-            border: 2px solid #555;
-            border-radius: 10px;
-            padding: 30px;
-            width: 80%;
-            max-width: 600px;
-            text-align: center;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
-            position: relative;
             overflow: hidden;
         }
-        /* 簡單的 CSS 動畫替代圖片 */
-        #visual-box {
+        #game-container {
+            background-color: #1f1f1f;
+            border: 2px solid #444;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 650px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 圖片容器 */
+        #visual-container {
             width: 100%;
-            height: 150px;
-            background: linear-gradient(45deg, #8B0000, #4A0000);
-            border-radius: 5px;
-            margin-bottom: 20px;
+            height: 250px; /* 固定圖片高度 */
+            position: relative;
+            overflow: hidden;
+            border-bottom: 2px solid #444;
+        }
+        
+        #game-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 確保圖片填滿容器且不變形 */
+            transition: opacity 0.5s ease-in-out;
+            opacity: 1;
+        }
+        
+        /* 默認背景 (當圖片未載入時顯示) */
+        .img-placeholder {
+            background: linear-gradient(135deg, #333, #1a1a1a);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: rgba(255, 255, 255, 0.5);
-            transition: all 0.5s ease;
+            font-size: 18px;
+            color: #777;
         }
+
+        #content-box {
+            padding: 20px 30px;
+            flex-grow: 1;
+        }
+
         #story-title {
             color: #ffcc00;
-            font-size: 22px;
-            margin-bottom: 10px;
+            font-size: 24px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
         #story-text {
             font-size: 18px;
-            line-height: 1.6;
-            margin-bottom: 30px;
-            min-height: 80px;
+            line-height: 1.7;
+            margin-bottom: 25px;
+            min-height: 100px;
+            text-align: left;
+        }
+        #options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 15px;
         }
         .btn {
-            background-color: #444;
+            background: linear-gradient(180deg, #555, #333);
             color: white;
-            border: 1px solid #777;
-            padding: 10px 20px;
-            margin: 10px;
-            border-radius: 5px;
+            border: 1px solid #666;
+            padding: 12px 20px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 16px;
-            width: 90%;
-            transition: background 0.3s;
+            width: 100%;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
         .btn:hover {
-            background-color: #666;
+            background: linear-gradient(180deg, #777, #444);
+            transform: translateY(-2px);
         }
-        .fade-in {
-            animation: fadeIn 0.8s ease-in;
+        .btn:active {
+            transform: translateY(1px);
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+
         #score-display {
-            margin-top: 20px;
             font-weight: bold;
             color: #ffaa00;
             font-size: 20px;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: rgba(0,0,0,0.3);
+            border-radius: 4px;
+        }
+
+        /* 動畫 */
+        .fade-in {
+            animation: fadeInContent 0.6s ease-out forwards;
+        }
+        @keyframes fadeInContent {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
 
 <div id="game-container">
-    <div id="visual-box">點擊開始以載入音效</div>
-    <h2 id="story-title">歡迎來到遊戲</h2>
-    <div id="story-text">準備好改變歷史了嗎？</div>
-    <div id="options-container">
-        <button class="btn" onclick="initGame()">開始遊戲</button>
+    <div id="visual-container">
+        <img id="game-image" src="" alt="遊戲畫面" class="img-placeholder">
     </div>
-    <div id="score-display"></div>
+    
+    <div id="content-box">
+        <h2 id="story-title">歡迎來到遊戲</h2>
+        <div id="story-text">準備好改變歷史了嗎？</div>
+        <div id="options-container">
+            <button class="btn" onclick="initGame()">開始遊戲 (載入音效)</button>
+        </div>
+        <div id="score-display"></div>
+    </div>
 </div>
 
 <script>
-// 音效系統 (使用 Web Audio API)
+// 音效系統
 let audioCtx;
 function playSound(type) {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    osc.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
+    try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
 
-    if (type === 'click') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.1);
-        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.1);
-    } else if (type === 'win') {
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-        osc.frequency.setValueAtTime(600, audioCtx.currentTime + 0.2);
-        osc.frequency.setValueAtTime(800, audioCtx.currentTime + 0.4);
-        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.8);
-    } else if (type === 'lose') {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.5);
-        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.5);
-    }
+        if (type === 'click') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        } else if (type === 'win') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(700, audioCtx.currentTime + 0.15);
+            osc.frequency.setValueAtTime(900, audioCtx.currentTime + 0.3);
+            gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.6);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.6);
+        } else if (type === 'lose') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(250, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(60, audioCtx.currentTime + 0.5);
+            gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.5);
+        }
+    } catch(e) { console.log("Audio not supported"); }
 }
 
-// 遊戲劇本資料
+// 遊戲劇本資料 (添加了 bgImage 屬性)
 const storyData = {
     start: {
         title: "事件1: 未來",
         text: "我們成立了！但是，我們該如何？",
-        color: "#2C3E50",
+        bgImage: "event1.jpg", // <--- 在這裏填寫你生成的圖片檔名
         options: [
             { text: "選項1：與國民黨合作", next: "event2" },
             { text: "選項2：漢賊不兩立", next: "end1" }
@@ -147,7 +195,7 @@ const storyData = {
     event2: {
         title: "事件2: 北伐前夕",
         text: "孫中山快支持不下去了！要是他死了，我們可能就會被國民黨右派驅逐。我們應否以孫中山為工具，清洗國民黨右派？",
-        color: "#8E44AD",
+        bgImage: "event2.jpg",
         options: [
             { text: "選項1：繼續合作", next: "event3" },
             { text: "選項2：清洗國民黨右派", next: "event4" }
@@ -156,7 +204,7 @@ const storyData = {
     event3: {
         title: "事件3: 南昌起義/暴動",
         text: "我們成功起義了！可是，潮汕很難打進去，我們該如何辦？",
-        color: "#C0392B",
+        bgImage: "event3.jpg",
         options: [
             { text: "選項1：不計傷亡進攻！", next: "end2" },
             { text: "選項2：分散轉移撤退", next: "event5" }
@@ -165,7 +213,7 @@ const storyData = {
     event4: {
         title: "事件4: 北伐後",
         text: "終於，北伐成功了，現在國民黨左派已經成為我們的傀儡了。我們應該留下他們，穩定局勢，還是直接不演？",
-        color: "#D35400",
+        bgImage: "event4.jpg",
         options: [
             { text: "選項1：先平軍閥，後吞滅國民黨左派", next: "event6" },
             { text: "選項2：先吞滅國民黨左派", next: "end3" }
@@ -174,7 +222,7 @@ const storyData = {
     event5: {
         title: "事件5: 第五次反圍剿戰爭",
         text: "我們被國軍團團圍住了！我們該如何辦？",
-        color: "#27AE60",
+        bgImage: "event5.jpg",
         options: [
             { text: "選項1：死守！不能放棄人民！", next: "end4" },
             { text: "選項2：戰略轉移，求生存", next: "event7" }
@@ -183,7 +231,7 @@ const storyData = {
     event6: {
         title: "事件6: 九一八事變",
         text: "日寇進攻東北了！我們該扺抗還是好漢不吃眼前虧，先穩定國內局勢？",
-        color: "#16A085",
+        bgImage: "event6.jpg",
         options: [
             { text: "選項1：先安內", next: "end9" },
             { text: "選項2：先攘外", next: "end5" }
@@ -192,7 +240,7 @@ const storyData = {
     event7: {
         title: "事件7: 西安事變",
         text: "蔣介石中計了！我們應否殺死他？",
-        color: "#2980B9",
+        bgImage: "event7.jpg",
         options: [
             { text: "選項1：別殺他！", next: "event8" },
             { text: "選項2：殺了這個漢奸！", next: "end6" }
@@ -201,72 +249,88 @@ const storyData = {
     event8: {
         title: "事件8: 國共內戰危機",
         text: "現在我們又沒有糧食，又沒錢，百姓可能起義，我們該如何辦？",
-        color: "#F39C12",
+        bgImage: "event8.jpg",
         options: [
             { text: "選項1：徹底土改！", next: "end8" },
             { text: "選項2：反動派都該死！", next: "end7" }
         ]
     },
-    // 結局設定 (包含分數計算邏輯所需資訊)
-    end1: { title: "結局1 (C級)", text: "雖然成立了，但由於沒有跟國民黨合作，未能成功獲得任何影響力，最後被國民黨以非法學運組織被消滅。", score: -100, isWin: false },
-    end2: { title: "結局2 (C級)", text: "雖然成功獲得兵力，但由於不計死傷進功，最後被國軍在潮汕門前全滅。", score: -100, isWin: false },
-    end3: { title: "結局3 (C級)", text: "吞併國民黨左派後，大量資本家害怕被消滅發動反抗，最終被推翻。", score: -100, isWin: false },
-    end4: { title: "結局4 (C級)", text: "在宣佈死守後，大量農民加入軍隊誓要共生死，但最後被國民黨團滅。", score: -100, isWin: false },
-    end5: { title: "结局5 (C級)", text: "雖然統一中國，但土地改革未完成。在宣佈進攻日本後，地主發動反抗，被兩面夾攻推翻。", score: -100, isWin: false },
-    end6: { title: "結局6 (C級)", text: "長佂後元氣大傷。蔣介石被殺後，國民黨右派全面進攻，最終被全滅。", score: -100, isWin: false },
-    end7: { title: "結局7 (B級)", text: "幫助勝出二戰！但在國共戰爭時，徵糧方式粗暴引發「民變」，內外夾攻中被逼投降。", score: 150, isWin: false },
-    end8: { title: "結局8 (A級)", text: "統一全中國！以徹底平分土地解決危機，打敗對手成立新政權。", score: 280, isWin: true },
-    end9: { title: "結局9 (S級)", text: "統一東亞！不但統一中國、成功抗日，更把赤旗插上東京，成立東亞人民共和國。<br><br><b>🌈 彩蛋：看看美麗的山河！</b>", score: 300, isWin: true }
+    // 結局設定 (C級失敗默認使用同樣的失敗圖片，S/A/B使用特定的勝利圖片)
+    end1: { title: "結局1 (C級)", text: "雖然成立了，但由於沒有跟國民黨合作，未能成功獲得任何影響力，最後被國民黨以非法學運組織被消滅。", score: -100, isWin: false, bgImage: "end_fail.jpg" },
+    end2: { title: "結局2 (C級)", text: "雖然成功獲得兵力，但由於不計死傷進功，最後被國軍在潮汕門前全滅。", score: -100, isWin: false, bgImage: "end_fail.jpg" },
+    end3: { title: "結局3 (C級)", text: "吞併國民黨左派後，大量資本家害怕被消滅發動反抗，最終被推翻。", score: -100, isWin: false, bgImage: "end_fail.jpg" },
+    end4: { title: "結局4 (C級)", text: "在宣佈死守後，大量農民加入軍隊誓要共生死，但最後被國民黨團滅。", score: -100, isWin: false, bgImage: "end_fail.jpg" },
+    end5: { title: "结局5 (C級)", text: "雖然統一中國，但土地改革未完成。在宣佈進攻日本後，地主發動反抗，被兩面夾攻推翻。", score: -100, isWin: false, bgImage: "end_fail.jpg" },
+    end6: { title: "結局6 (C級)", text: "長佂後元氣大傷。蔣介石被殺後，國民黨右派全面進攻，最終被全滅。", score: -100, isWin: false, bgImage: "end_fail.jpg" },
+    end7: { title: "結局7 (B級)", text: "幫助勝出二戰！但在國共戰爭時，徵糧方式粗暴引發「民變」，內外夾攻中被逼投降。", score: 150, isWin: false, bgImage: "end_b.jpg" },
+    end8: { title: "結局8 (A級)", text: "統一全中國！以徹底平分土地解決危機，打敗對手成立新政權，中華人民共和國成立。", score: 280, isWin: true, bgImage: "end_a.jpg" },
+    end9: { title: "結局9 (S級)", text: "統一東亞！不但統一中國、成功抗日，更把赤旗插上東京，成立東亞人民共和國。<br><br><b>🌈 彩蛋：看看美麗的山河！</b>", score: 300, isWin: true, bgImage: "end_s.jpg" }
 };
 
 // 評級系統
 function getRank(score) {
-    if (score >= 300) return "無敵 (300分)";
-    if (score >= 270) return "很強 (" + score + "分)";
-    if (score >= 180) return "強 (" + score + "分)";
-    if (score >= 120) return "正常 (" + score + "分)";
-    if (score >= 0) return "弱 (" + score + "分)";
-    return "滅國 (-100分)";
+    if (score >= 300) return "無敵";
+    if (score >= 270) return "很強";
+    if (score >= 180) return "強";
+    if (score >= 120) return "正常";
+    if (score >= 0) return "弱";
+    return "滅國";
 }
 
 // 遊戲邏輯
 function initGame() {
-    // 為了允許瀏覽器播放音效，必須由使用者點擊後初始化 AudioContext
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e) {}
     document.getElementById("score-display").innerHTML = "";
     goToNode("start");
 }
 
 function goToNode(nodeId) {
     const node = storyData[nodeId];
-    const container = document.getElementById("game-container");
-    const visualBox = document.getElementById("visual-box");
+    const contentBox = document.getElementById("content-box");
+    const gameImg = document.getElementById("game-image");
     const titleEl = document.getElementById("story-title");
     const textEl = document.getElementById("story-text");
     const optionsEl = document.getElementById("options-container");
     const scoreEl = document.getElementById("score-display");
 
-    // 觸發動畫
-    container.classList.remove("fade-in");
-    void container.offsetWidth; // 觸發重繪
-    container.classList.add("fade-in");
+    // 觸發文字與選項動畫
+    contentBox.classList.remove("fade-in");
+    void contentBox.offsetWidth; // 觸發重繪
+    contentBox.classList.add("fade-in");
 
-    // 設定文字與畫面
+    // 設定圖片
+    gameImg.style.opacity = 0; // 先淡出
+    setTimeout(() => {
+        // 修改 src。如果圖片不存在，瀏覽器會顯示默認樣式或 alt 文字
+        gameImg.src = node.bgImage; 
+        gameImg.classList.remove("img-placeholder");
+        // 圖片載入完成後淡入 (處理如果圖片路徑出錯的情況)
+        gameImg.onload = () => gameImg.style.opacity = 1;
+        gameImg.onerror = () => {
+            gameImg.classList.add("img-placeholder");
+            gameImg.alt = "图片 [" + node.bgImage + "] 未找到 - 請閱讀代碼註釋以添加圖片";
+            gameImg.style.opacity = 1;
+        };
+    }, 200);
+
+    // 設定文字
     titleEl.innerHTML = node.title;
     textEl.innerHTML = node.text;
     optionsEl.innerHTML = "";
     
     // 如果是結局
     if (node.score !== undefined) {
-        visualBox.style.background = node.isWin ? "linear-gradient(45deg, #F1C40F, #D35400)" : "linear-gradient(45deg, #2C3E50, #000000)";
-        visualBox.innerText = node.isWin ? "🏆 歷史的勝利者" : "💀 歷史的塵埃";
         playSound(node.isWin ? 'win' : 'lose');
         
         let rankStr = getRank(node.score);
-        scoreEl.innerHTML = "最終評價：<span style='color:white;'>" + rankStr + "</span>";
+        let color = node.isWin ? "#ffcc00" : "#ff4444";
+        scoreEl.innerHTML = "最終評價：<span style='color:" + color + ";'>" + rankStr + " (" + node.score + "分)</span>";
 
         let restartBtn = document.createElement("button");
         restartBtn.className = "btn";
+        restartBtn.style.background = "linear-gradient(180deg, #444, #222)";
         restartBtn.innerText = "重新開始";
         restartBtn.onclick = function() {
             playSound('click');
@@ -275,8 +339,6 @@ function goToNode(nodeId) {
         optionsEl.appendChild(restartBtn);
     } else {
         // 如果是事件
-        visualBox.style.background = node.color;
-        visualBox.innerText = "抉擇時刻";
         playSound('click');
 
         node.options.forEach(opt => {
